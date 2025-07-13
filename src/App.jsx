@@ -1,35 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// import './App.css'
+
+// function App() {
+  
+
+//   return (
+//     <>
+   
+//     </>
+//   )
+// }
+
+// export default App
+
+import "./App.css";
+import ProductCard from "./components/productCard";
+
+    
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+      <ProductCard name="Audio setup" price="3250/=" 
+      description="dfvsf fscsdc sdcsdc sddswdc" 
+      photoUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb5EWPwRAqt5sl4qk8LuMjK9zdRAg4YWdBVw&s" />
+
+      <ProductCard name="Phone case" price="1500/=" 
+      description="AnDyH Phone case For Xiaomi POCO M3 Pro 5G Case,Creative Fashion Luxury New 3D Swan Retractable Stand Phone Case Premium Simple Solid Color Straight Edge Plating Soft Silicone Shockproof Casing Protective Back Cover"
+      photoUrl="https://img.drz.lazcdn.com/static/lk/p/481b8187fae456bf439c15fa919bc21f.jpg_720x720q80.jpg_.webp" />
+
+    </div>
+  );
 }
 
-export default App
+export default App;
