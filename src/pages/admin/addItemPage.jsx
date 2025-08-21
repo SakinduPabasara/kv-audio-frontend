@@ -98,7 +98,7 @@ export default function AddItemPage() {
           className="border p-2 w-full rounded"
         />
 
-        <input
+        <textarea
           type="text"
           placeholder="Product Description"
           value={productDescription}
