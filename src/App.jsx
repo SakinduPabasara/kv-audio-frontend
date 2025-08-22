@@ -6,6 +6,7 @@ import AdminPage from "./pages/admin/adminPage.jsx";
 import HomePage from "./pages/home/homePage.jsx";
 import Testing from "./components/testing.jsx";
 import LoginPage from "./pages/login/login.jsx";
+import RegisterPage from "./pages/register/register.jsx";
 
 function App() {
  
@@ -14,10 +15,10 @@ function App() {
       <Toaster position="top-right" />
       <Routes path="/*">
         <Route path="/testing" element={<Testing/>}/>
-        <Route path="/login" element={<LoginPage/>}/>             
+        <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/register" element={<RegisterPage/>}/>             
         <Route path="/admin/*" element={<AdminPage/>}/>
         <Route path="/*" element={<HomePage/>}/>
-        
       </Routes>
     </BrowserRouter>
   );
