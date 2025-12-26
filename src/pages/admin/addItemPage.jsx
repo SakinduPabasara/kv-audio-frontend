@@ -3,6 +3,7 @@ import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import mediaUpload from "../../utils/mediaUpload";
 
 export default function AddItemPage() {
   const [productKey, setProductKey] = useState("");
@@ -11,15 +12,41 @@ export default function AddItemPage() {
   const [productCategory, setProductCategory] = useState("audio");
   const [productDimensions, setProductDimensions] = useState("");
   const [productDescription, setProductDescription] = useState("");
+  const[productImages, setProductImages] = useState([]);
   const navigate = useNavigate();
 
   async function handleAddItem() {
-    console.log(productKey, productName, productPrice, productCategory, productDimensions, productDescription);
+    const promises = [];
+
+    for(let i=0; i< productImages.length; i++){
+        console.log(productImages[i]);
+        const promise = mediaUpload(productImages[i]);
+        promises.push(promise);
+      }   
+    
+
+    console.log(productKey, 
+                productName, 
+                productPrice, 
+                productCategory, 
+                productDimensions, 
+                productDescription);
 
     const token = localStorage.getItem("token");
 
     if(token){
         try {
+            // Promise.all(promises)
+            //   .then((result) => {
+            //     console.log(result); // array of image URLs
+            //   })
+            //   .catch((err) => {
+            //     toast.error(err);
+            //     return;
+            //   });
+
+          const imageUrls = await Promise.all(promises);
+
           const result = await axios.post(
             `${import.meta.env.VITE_BACKEND_URL}/api/products`,
             {
@@ -29,6 +56,7 @@ export default function AddItemPage() {
               category: productCategory,
               dimensions: productDimensions,
               description: productDescription,
+              image: imageUrls,
             },
             {
               headers: {
@@ -48,7 +76,7 @@ export default function AddItemPage() {
         toast.error("You are not authorized to add items.");
     }
 
-  }
+     }
 
 
 
@@ -105,6 +133,12 @@ export default function AddItemPage() {
           onChange={(e) => setProductDescription(e.target.value)}
           className="border p-2 w-full rounded"
         />
+
+        <input type="file" multiple
+          onChange={(e)=> setProductImages(e.target.files)}
+          className="w-full p-2 border rounded"
+        />
+
 
         <button
           onClick={handleAddItem}
