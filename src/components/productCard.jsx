@@ -1,14 +1,17 @@
+import { Link } from "react-router-dom";
+
 export default function ProductCard(props) { 
     const item = props.item; 
     return(
         <div className="bg-white rounded-lg shadow-md p-6 m-4 w-80 hover:shadow-lg transition-shadow duration-300">
-            <div className="flex justify-center mb-4">
-                <img 
-                    src={item.image[0]} 
-                    alt={item.name}
-                    className="w-48 h-48 object-cover rounded-full"
-                />
-            </div>
+            
+               <div className="w-full h-56 overflow-hidden rounded-lg mb-4">
+                 <img
+                   src={item.image[0]}
+                   alt={item.name}
+                   className="w-full h-full object-cover"
+                 />
+               </div>; 
             
             <h2 className="text-xl font-bold text-gray-800 mb-1">{item.name}</h2>
             <p className="text-sm text-gray-600 mb-3 capitalize">{item.category}</p>
@@ -30,9 +33,12 @@ export default function ProductCard(props) {
                 <span className="font-medium">Dimensions:</span> {item.dimensions}
             </p>
             
-            <button className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+            <div>
+              <Link to={"/product/" + item.key} className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
                 View Details
-            </button>
+              </Link>
+            </div>;
         </div>
     ) 
 }
+

@@ -22,6 +22,10 @@ export default function AddItemPage() {
         console.log(productImages[i]);
         const promise = mediaUpload(productImages[i]);
         promises.push(promise);
+        // if(i==5){
+        //   toast.error("you can only upload maximum 4 images");
+        //   break; 
+        // }
       }   
     
 
