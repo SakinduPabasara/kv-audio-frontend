@@ -13,6 +13,8 @@
     "@supabase-js/source": "github:supabase/supabase-js",
     "@supabase/supabase-js": "^2.56.0",
     "axios": "^1.11.0",
+    "baseline-browser-mapping": "^2.9.19",
+    "caniuse-lite": "^1.0.30001770",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hot-toast": "^2.6.0",

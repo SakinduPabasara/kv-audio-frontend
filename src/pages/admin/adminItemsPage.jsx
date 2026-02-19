@@ -4,153 +4,122 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 
-
 export default function AdminItemsPage() {
-  const [items, setItems] = useState([]); // Using sample data for demonstration
-  const [itemsLoaded, setItemsLoaded] = useState(false);   // State flag used to trigger re-fetching items when updated (e.g. after delete)
+  const [items, setItems] = useState([]);
+  const [itemsLoaded, setItemsLoaded] = useState(false);
   const navigate = useNavigate();
 
-  // useEffect - Fetch items from the API when the component mounts
   useEffect(() => {
-    // PROBLEM: The original logic was checking if itemsLoaded is true before making API call
-    // But itemsLoaded starts as false, so the API call never happens!
-    
-    // SOLUTION: We need to make the API call when itemsLoaded is false (initial load)
-    // OR we can trigger it differently. Let's use a different approach:
-    
-    // Check if we need to fetch items (either initial load or after delete)
-    if (!itemsLoaded) {     // Changed from itemsLoaded to !itemsLoaded
+    if (!itemsLoaded) {
       const token = localStorage.getItem("token");
       axios
         .get(`${import.meta.env.VITE_BACKEND_URL}/api/products`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => {
-          console.log("Fetched items:", res.data);
           setItems(res.data);
-          setItemsLoaded(true);   // Mark as loaded after successful fetch
+          setItemsLoaded(true);
         })
-        .catch((err) => {
-          console.error("Error fetching items:", err);
-          // Even if there's an error, we should stop loading
-          //setItemsLoaded(true);
-        });
+        .catch(() => setItemsLoaded(true));
     }
-
-  }, [itemsLoaded]); // This dependency means: run useEffect whenever itemsLoaded changes
+  }, [itemsLoaded]);
 
   const handleDelete = (itemKey) => {
-    if (window.confirm("Are you sure you want to delete this item?")) {
-      // First, update the UI immediately for better user experience
-      setItems(items.filter((item) => item.key !== itemKey));
-      
-      const token = localStorage.getItem("token");
-      axios
-        .delete(`${import.meta.env.VITE_BACKEND_URL}/api/products/${itemKey}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          console.log("Item deleted successfully:", res.data);
-          // After successful delete, trigger a re-fetch to ensure data is in sync
-          setItemsLoaded(false); // This will trigger useEffect to fetch fresh data
-        })
-        .catch((err) => {
-          console.error("Error deleting item:", err);
-          // If delete fails, we should revert the UI change
-          // For now, we'll just log the error
-        });
-    }
+    if (!window.confirm("Are you sure you want to delete this item?")) return;
+    setItems((prev) => prev.filter((item) => item.key !== itemKey));
+    const token = localStorage.getItem("token");
+    axios
+      .delete(`${import.meta.env.VITE_BACKEND_URL}/api/products/${itemKey}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(() => setItemsLoaded(false))
+      .catch((err) => console.error("Delete failed:", err));
   };
 
   return (
-    <div className="w-full h-full relative p-4 flex items-center flex-col">
-      {/* Show loading spinner when items are not loaded */}
+    <div className="p-6 md:p-8 animate-fade-in">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 mb-1">Items</h1>
+          <p className="text-slate-600">Manage your product catalog</p>
+        </div>
+        <Link
+          to="/admin/items/add"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark hover:shadow-glow transition-all duration-300 btn-premium"
+        >
+          <CiCirclePlus className="w-5 h-5" />
+          Add Item
+        </Link>
+      </div>
+
       {!itemsLoaded && (
-        <div className="border-4 my-4 border-b-green-500 rounded-full animate-spin w-[100px] h-[100px]"></div>
-      )}
-
-      {/* Show table when items are loaded */}
-      {itemsLoaded && (
-        <div className="overflow-x-auto rounded-lg shadow-lg">
-          <table className="w-full max-w-full bg-white border border-gray-200">
-            <thead className="bg-gray-100 text-gray-700 uppercase text-sm">
-              <tr>
-                <th className="px-6 py-3 text-left">Key</th>
-                <th className="px-6 py-3 text-left">Name</th>
-                <th className="px-6 py-3 text-left">Price</th>
-                <th className="px-6 py-3 text-left">Category</th>
-                <th className="px-6 py-3 text-left">Dimensions</th>
-                <th className="px-6 py-3 text-left">Availability</th>
-                <th className="px-6 py-3 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((product, index) => (
-                <tr
-                  key={product.key}
-                  className={`border${
-                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  } border-b hover:bg-gray-100`}
-                >
-                  <td className="px-6 py-4 border">{product.key}</td>
-                  <td className="px-6 py-4 font-medium text-gray-800 border">
-                    {product.name}
-                  </td>
-                  <td className="px-6 py-4 border">${product.price}</td>
-                  <td className="px-6 py-4 capitalize border">
-                    {product.category}
-                  </td>
-                  <td className="px-6 py-4 border">{product.dimensions}</td>
-                  <td className="p-3 border">
-                    {/* Fixed the CSS class - was missing the number after px- */}
-                    <span
-                      className={`px-2 py-1 rounded text-sm font-medium ${
-                        product.availability
-                          ? "bg-green-100 text-green-700"
-                          : "text-red-600 "
-                      }`}
-                    >
-                      {product.availability ? "Available" : "Unavailable"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 flex justify-center gap-3">
-                    <button
-                      onClick={() => navigate("/admin/items/edit" , {state:product})} // navigate hook used to go to edit page  
-                      className="px-3 py-1 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition"
-                    >
-                      <FaEdit className="inline mr-1" /> Edit
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(product.key)}
-                      className="px-3 py-1 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 transition"
-                    >
-                      <FaTrashAlt className="inline mr-1" />
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex justify-center py-32">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-gold/30 rounded-full animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
+          </div>
         </div>
       )}
 
-      {/* Add New Item Button */}
-      <Link to="/admin/items/add">
-        <CiCirclePlus className="text-[70px] text-blue-600 absolute right-6 bottom-6 hover:text-blue-800 cursor-pointer transition" />
-      </Link>
+      {itemsLoaded && (
+        <div className="rounded-3xl border border-slate-200 bg-white shadow-premium overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Key</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Price</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Availability</th>
+                  <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {items.map((product, idx) => (
+                  <tr
+                    key={product.key}
+                    className="hover:bg-slate-50/50 transition-colors animate-fade-in-up"
+                    style={{ animationDelay: `${idx * 0.05}s` }}
+                  >
+                    <td className="px-6 py-4 text-sm font-mono text-slate-600">{product.key}</td>
+                    <td className="px-6 py-4 font-semibold text-slate-900">{product.name}</td>
+                    <td className="px-6 py-4 text-sm text-slate-700">{product.price}</td>
+                    <td className="px-6 py-4 text-sm capitalize text-slate-600">{product.category}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${product.availability ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+                        {product.availability ? "Available" : "Unavailable"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => navigate("/admin/items/edit", { state: product })}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent/10 text-accent text-sm font-semibold hover:bg-accent/20 transition-all duration-200"
+                        >
+                          <FaEdit className="w-3.5 h-3.5" /> Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product.key)}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-100 transition-all duration-200"
+                        >
+                          <FaTrashAlt className="w-3.5 h-3.5" /> Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {itemsLoaded && items.length === 0 && (
+            <div className="p-16 text-center text-slate-500">
+              <div className="text-5xl mb-4">📦</div>
+              <p>No items yet. Add your first product.</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
-
-
-
-
-
-
-

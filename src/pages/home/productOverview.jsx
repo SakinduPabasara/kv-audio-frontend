@@ -1,53 +1,121 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"
+import { useParams, Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import ImageSlider from "../../components/imageSlider";
+import Reviews from "../../components/reviews";
+import { addToCart } from "../../utils/cart";
+import { HiArrowLeft, HiShoppingCart } from "react-icons/hi";
 
-export default function ProductOverview(props) { 
-    const params = useParams();   // Hook to access URL parameters
-    const key = params.key;       // Get the product key from the URL parameters
-    const [loadingStatus, setLoadingStatus] = useState("loading");
-    const[product, setProduct] = useState({});
+export default function ProductOverview() {
+  const { key } = useParams();
+  const [loadingStatus, setLoadingStatus] = useState("loading");
+  const [product, setProduct] = useState({});
 
-    useEffect(() => {
-        axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${key}`).then((res) => {
-            setProduct(res.data);
-            setLoadingStatus("loaded");
-            console.log(res.data);
-        }).catch((err) => {
-            console.error(err);
-            setLoadingStatus("error");
-        }); 
-    },[]) 
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${key}`)
+      .then((res) => {
+        setProduct(res.data);
+        setLoadingStatus("loaded");
+      })
+      .catch(() => setLoadingStatus("error"));
+  }, [key]);
 
-    return (
-        <div className="w-full h-full flex justify-center">
-            {
-                loadingStatus === "loading" && <div className="w-full h-full flex justify-center items-center">
-                    <div className="w-[70px] h-[70px] border-b-2 border-b-accent animate-spin rounded-full"></div>
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-white to-slate-50 py-8 md:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {loadingStatus === "loading" && (
+          <div className="flex justify-center items-center py-32">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+              <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-gold/30 rounded-full animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
+            </div>
+          </div>
+        )}
+
+        {loadingStatus === "error" && (
+          <div className="rounded-3xl bg-white border-2 border-red-200 p-12 text-center max-w-md mx-auto animate-scale-in">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h1 className="text-xl font-bold text-slate-800 mb-2">Could not load this product</h1>
+            <Link
+              to="/items"
+              className="inline-flex items-center gap-2 mt-4 text-accent font-semibold hover:underline"
+            >
+              <HiArrowLeft className="w-4 h-4" />
+              Back to shop
+            </Link>
+          </div>
+        )}
+
+        {loadingStatus === "loaded" && (
+          <>
+            <Link
+              to="/items"
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-accent mb-8 transition-colors group"
+            >
+              <HiArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              Back to shop
+            </Link>
+
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 mb-16">
+              {/* Image Section */}
+              <div className="animate-slide-in-left">
+                <div className="rounded-3xl overflow-hidden bg-white border border-slate-200 shadow-premium aspect-square max-h-[600px]">
+                  <ImageSlider images={product.image} />
                 </div>
-            }
-            {
-                loadingStatus === "loaded" && <div className="w-full h-full flex justify-center items-center">
-                    <div className="w-[49%] h-full">
-                        <ImageSlider images={product.image} />
-                    </div>
-                    <div className="w-[49%] h-full flex flex-col items-center">
-                        <h1 className="text-4xl font-bold text-accent">{product.name}</h1>
-                        <h2 className="text-xl font-semibold text-gray-800">{product.category}</h2>
-                        <p className="text-md text-gray-700 mt-6">{product.description}</p>
-                        <p className="text-lg font-bold text-green-500">Rs.{product.price}</p>
-                        <div className="mt-4 text-sm text-gray-600">
-                            <span className="font-medium">Dimensions:</span> {product.dimensions}
-                        </div>
-                    </div>
+              </div>
+
+              {/* Details Section */}
+              <div className="flex flex-col justify-center animate-slide-in-right">
+                <div className="mb-4">
+                  <span className="inline-block px-3 py-1.5 rounded-xl bg-accent/10 text-accent text-sm font-semibold uppercase tracking-wider">
+                    {product.category}
+                  </span>
                 </div>
-            }
-            {
-                loadingStatus === "error" && <div className="w-full h-full flex justify-center items-center">
-                    <h1 className="text-2xl font-bold text-accent">Error loading product details. Please try again later.</h1>
+                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">{product.name}</h1>
+                <div className="flex items-baseline gap-3 mb-6">
+                  <p className="text-4xl font-bold text-accent">
+                    {typeof product.price === "number" ? `Rs. ${product.price.toLocaleString()}` : product.price}
+                  </p>
                 </div>
-            }
-        </div>
-    )
+                <p className="text-lg text-slate-600 mb-8 leading-relaxed">{product.description}</p>
+
+                {product.dimensions && (
+                  <div className="mb-8 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <p className="text-sm font-semibold text-slate-700 mb-1">Dimensions</p>
+                    <p className="text-slate-600">{product.dimensions}</p>
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button
+                    className="group flex-1 flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-accent text-white font-semibold hover:bg-accent-dark hover:shadow-glow transition-all duration-300 btn-premium"
+                    onClick={() => {
+                      addToCart(product.key, 1);
+                      toast.success("Added to cart!", { icon: "🛒" });
+                    }}
+                  >
+                    <HiShoppingCart className="w-5 h-5" />
+                    Add to Cart
+                  </button>
+                  <Link
+                    to="/contact"
+                    className="px-8 py-4 rounded-2xl border-2 border-slate-300 text-slate-700 font-semibold hover:border-accent hover:text-accent hover:bg-accent/5 transition-all duration-300 text-center"
+                  >
+                    Inquire
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Reviews Section */}
+            <div className="mt-16">
+              <Reviews productKey={key} showAddForm={true} />
+            </div>
+          </>
+        )}
+      </div>
+    </main>
+  );
 }

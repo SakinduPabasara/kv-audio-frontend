@@ -1,44 +1,46 @@
 import { Link } from "react-router-dom";
+import { HiArrowRight } from "react-icons/hi";
 
-export default function ProductCard(props) { 
-    const item = props.item; 
-    return(
-        <div className="bg-white rounded-lg shadow-md p-6 m-4 w-80 hover:shadow-lg transition-shadow duration-300">
-            
-               <div className="w-full h-56 overflow-hidden rounded-lg mb-4">
-                 <img
-                   src={item.image[0]}
-                   alt={item.name}
-                   className="w-full h-full object-cover"
-                 />
-               </div>; 
-            
-            <h2 className="text-xl font-bold text-gray-800 mb-1">{item.name}</h2>
-            <p className="text-sm text-gray-600 mb-3 capitalize">{item.category}</p>
-            
-            <p className="text-sm text-gray-700 mb-4">{item.description}</p>
-            
-            <div className="flex justify-between items-center mb-3">
-                <p className="text-2xl font-semibold text-green-600">{item.price}</p>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    item.availability 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                }`}>
-                    {item.availability ? 'In Stock' : 'Out of Stock'}
-                </span>
-            </div>
-            
-            <p className="text-sm text-gray-600 mb-4">
-                <span className="font-medium">Dimensions:</span> {item.dimensions}
-            </p>
-            
-            <div>
-              <Link to={"/product/" + item.key} className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                View Details
-              </Link>
-            </div>;
+export default function ProductCard(props) {
+  const item = props.item;
+  return (
+    <div className="group bg-white rounded-3xl border border-slate-200/80 shadow-card hover:shadow-premium transition-all duration-500 overflow-hidden hover:-translate-y-2">
+      <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 relative">
+        <img
+          src={item.image?.[0]}
+          alt={item.name}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {item.availability && (
+          <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-emerald-500/90 backdrop-blur-sm text-white text-xs font-semibold shadow-lg animate-fade-in">
+            In Stock
+          </div>
+        )}
+      </div>
+      <div className="p-6">
+        <div className="mb-2">
+          <span className="inline-block px-2.5 py-1 rounded-lg bg-accent/10 text-accent text-xs font-semibold uppercase tracking-wider">
+            {item.category}
+          </span>
         </div>
-    ) 
+        <h2 className="text-xl font-bold text-slate-900 mb-2 line-clamp-2 group-hover:text-accent transition-colors">
+          {item.name}
+        </h2>
+        <p className="text-sm text-slate-600 mb-4 line-clamp-2 min-h-[2.5rem]">{item.description}</p>
+        <div className="flex justify-between items-center mb-5">
+          <p className="text-2xl font-bold text-accent">
+            {typeof item.price === "number" ? `Rs. ${item.price.toLocaleString()}` : item.price}
+          </p>
+        </div>
+        <Link
+          to={"/product/" + item.key}
+          className="group/btn flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark hover:shadow-glow transition-all duration-300 btn-premium"
+        >
+          View Details
+          <HiArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+        </Link>
+      </div>
+    </div>
+  );
 }
-

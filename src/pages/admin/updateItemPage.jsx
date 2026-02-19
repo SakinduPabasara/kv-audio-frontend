@@ -1,163 +1,3 @@
-// import axios from "axios";
-// import { useEffect, useState } from "react";
-// import toast from "react-hot-toast";
-// import { useLocation, useNavigate } from "react-router-dom";
-// import mediaUpload from "../../utils/mediaUpload";
-
-// export default function UpdateItemPage() {
-//   const navigate = useNavigate();
-//   const location = useLocation();
-
-//   // If user navigates directly without state, redirect back
-//   useEffect(() => {
-//     if (!location.state) {
-//       toast.error("No product selected to edit");
-//       navigate("/admin/items");
-//     }
-//   }, [location.state, navigate]);
-
-//   const [productKey, setProductKey] = useState(location.state?.key || "");
-//   const [productName, setProductName] = useState(location.state?.name || "");
-//   const [productPrice, setProductPrice] = useState(location.state?.price || 0);
-//   const [productCategory, setProductCategory] = useState(
-//     location.state?.category || "audio"
-//   );
-//   const [productDimensions, setProductDimensions] = useState(
-//     location.state?.dimensions || ""
-//   );
-//   const [productDescription, setProductDescription] = useState(
-//     location.state?.description || ""
-//   );
-//   const [productImages, setProductImages] = useState([]);
-
-//   async function handleUpdateItem() {
-
-//     let updatingImages = location.state?.image || [];
-
-//     if (productImages.length > 0) {
-//       const promises = [];
-
-//       for (let i = 0; i < productImages.length; i++) {
-//         console.log(productImages[i]);
-//         const promise = mediaUpload(productImages[i]);
-//         promises.push(promise);
-        
-//       }
-
-//       updatingImages = await Promise.all(promises);
-//     }
-
-//     const token = localStorage.getItem("token");
-
-//     if (token) {
-//       try {
-//         const result = await axios.put(
-//           `${import.meta.env.VITE_BACKEND_URL}/api/products/${productKey}`,
-//           {
-//             name: productName,
-//             price: productPrice,
-//             category: productCategory,
-//             dimensions: productDimensions,
-//             description: productDescription,
-//             image: updatingImages,
-//           },
-//           {
-//             headers: {
-//               Authorization: "Bearer " + token,
-//             },
-//           }
-//         );
-//         toast.success(result.data.message);
-//         navigate("/admin/items");
-//       } catch (err) {
-//         toast.error(err.response?.data?.error || "Failed to update item");
-//       }
-//     } else {
-//       toast.error("You are not authorized to update items.");
-//     }
-//   }
-
-//   return (
-//     <div className="w-full h-full flex flex-col items-center">
-//       <h1 className="text-2xl font-bold my-4">Update Item</h1>
-
-//       <div className="w-[400px] border flex flex-col items-center gap-3 p-4 rounded-lg shadow">
-//         <input
-//           disabled
-//           type="text"
-//           placeholder="Product Key"
-//           value={productKey}
-//           onChange={(e) => setProductKey(e.target.value)}
-//           className="border p-2 w-full rounded"
-//         />
-
-//         <input
-//           type="text"
-//           placeholder="Product Name"
-//           value={productName}
-//           onChange={(e) => setProductName(e.target.value)}
-//           className="border p-2 w-full rounded"
-//         />
-
-//         <input
-//           type="number"
-//           placeholder="Product Price"
-//           value={productPrice}
-//           onChange={(e) => setProductPrice(e.target.value)}
-//           className="border p-2 w-full rounded"
-//         />
-
-//         <select
-//           value={productCategory}
-//           onChange={(e) => setProductCategory(e.target.value)}
-//           className="border p-2 w-full rounded"
-//         >
-//           <option value="audio">Audio</option>
-//           <option value="lights">Lights</option>
-//         </select>
-
-//         <input
-//           type="text"
-//           placeholder="Product Dimensions"
-//           value={productDimensions}
-//           onChange={(e) => setProductDimensions(e.target.value)}
-//           className="border p-2 w-full rounded"
-//         />
-
-//         <textarea
-//           type="text"
-//           placeholder="Product Description"
-//           value={productDescription}
-//           onChange={(e) => setProductDescription(e.target.value)}
-//           className="border p-2 w-full rounded"
-//         />
-
-//         <input
-//           type="file"
-//           multiple
-//           onChange={(e) => setProductImages(Array.from(e.target.files))}
-//           className="w-full p-2 border rounded"
-//         />
-
-//         <button
-//           onClick={handleUpdateItem}
-//           className="w-full bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition"
-//         >
-//           Update Item
-//         </button>
-//         <button
-//           onClick={() => navigate("/admin/items")}
-//           className="w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition mt-2"
-//         >
-//           Cancel
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -167,182 +7,153 @@ import mediaUpload from "../../utils/mediaUpload";
 export default function UpdateItemPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const productFromState = location.state;
 
-  // If user navigates directly without state, redirect back
+  const [productKey, setProductKey] = useState(productFromState?.key ?? "");
+  const [productName, setProductName] = useState(productFromState?.name ?? "");
+  const [productPrice, setProductPrice] = useState(productFromState?.price ?? "");
+  const [productCategory, setProductCategory] = useState(productFromState?.category ?? "audio");
+  const [productDimensions, setProductDimensions] = useState(productFromState?.dimensions ?? "");
+  const [productDescription, setProductDescription] = useState(productFromState?.description ?? "");
+  const [productImages, setProductImages] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    if (!location.state) {
+    if (!productFromState) {
       toast.error("No product selected to edit");
       navigate("/admin/items", { replace: true });
     }
-  }, [location.state, navigate]);
-
-  const [productKey, setProductKey] = useState(location.state?.key || "");
-  const [productName, setProductName] = useState(location.state?.name || "");
-  const [productPrice, setProductPrice] = useState(location.state?.price || 0);
-  const [productCategory, setProductCategory] = useState(
-    location.state?.category || "audio"
-  );
-  const [productDimensions, setProductDimensions] = useState(
-    location.state?.dimensions || ""
-  );
-  const [productDescription, setProductDescription] = useState(
-    location.state?.description || ""
-  );
-
-  // keep as array of Files
-  const [productImages, setProductImages] = useState([]);
-
-  const [loading, setLoading] = useState(false);
+  }, [productFromState, navigate]);
 
   async function handleUpdateItem() {
-    if (loading) return;
-
-    // safety: if user refreshed or no key
-    if (!productKey) {
-      toast.error("Product key is missing.");
-      return;
-    }
-
-    //  backend URL safety
-    const backendUrl = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
-    if (!backendUrl) {
-      toast.error("VITE_BACKEND_URL is not set.");
+    if (loading || !productKey) return;
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("You are not authorized to update items.");
       return;
     }
 
     setLoading(true);
-
     try {
-      // Keep old images if no new images selected
-      let updatingImages = location.state?.image || [];
-
-      // Upload new images if user selected any
+      let imageUrls = productFromState?.image ?? [];
       if (productImages.length > 0) {
-        const promises = [];
-
-        for (let i = 0; i < productImages.length; i++) {
-          const promise = mediaUpload(productImages[i]);
-          promises.push(promise);
-        }
-
-        //  if upload fails, show error
-        updatingImages = await Promise.all(promises);
+        imageUrls = await Promise.all(productImages.map((file) => mediaUpload(file)));
       }
 
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("You are not authorized to update items.");
-        return;
-      }
-
-      const result = await axios.put(
-        `${backendUrl}/api/products/${encodeURIComponent(productKey)}`,
+      await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/api/products/${encodeURIComponent(productKey)}`,
         {
           name: productName,
-          price: productPrice,
+          price: Number(productPrice) || 0,
           category: productCategory,
           dimensions: productDimensions,
           description: productDescription,
-          image: updatingImages,
+          image: imageUrls,
         },
-        {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        }
+        { headers: { Authorization: "Bearer " + token } }
       );
-
-      toast.success(result.data?.message || "Updated successfully");
+      toast.success("Item updated successfully!", { icon: "✅" });
       navigate("/admin/items");
     } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.error || err.message || "Failed to update item");
+      toast.error(err.response?.data?.error || "Failed to update item");
     } finally {
       setLoading(false);
     }
   }
 
+  if (!productFromState) return null;
+
   return (
-    <div className="w-full h-full flex flex-col items-center">
-      <h1 className="text-2xl font-bold my-4">Update Item</h1>
+    <div className="p-6 md:p-8 max-w-2xl animate-fade-in">
+      <h1 className="text-3xl font-bold text-slate-900 mb-8">Update Item</h1>
 
-      <div className="w-[400px] border flex flex-col items-center gap-3 p-4 rounded-lg shadow">
-        <input
-          disabled
-          type="text"
-          placeholder="Product Key"
-          value={productKey}
-          onChange={(e) => setProductKey(e.target.value)}
-          className="border p-2 w-full rounded"
-        />
-
-        <input
-          type="text"
-          placeholder="Product Name"
-          value={productName}
-          onChange={(e) => setProductName(e.target.value)}
-          className="border p-2 w-full rounded"
-        />
-
-        <input
-          type="number"
-          placeholder="Product Price"
-          value={productPrice}
-          onChange={(e) => setProductPrice(e.target.value)}
-          className="border p-2 w-full rounded"
-        />
-
-        <select
-          value={productCategory}
-          onChange={(e) => setProductCategory(e.target.value)}
-          className="border p-2 w-full rounded"
-        >
-          <option value="audio">Audio</option>
-          <option value="lights">Lights</option>
-        </select>
-
-        <input
-          type="text"
-          placeholder="Product Dimensions"
-          value={productDimensions}
-          onChange={(e) => setProductDimensions(e.target.value)}
-          className="border p-2 w-full rounded"
-        />
-
-        <textarea
-          type="text"
-          placeholder="Product Description"
-          value={productDescription}
-          onChange={(e) => setProductDescription(e.target.value)}
-          className="border p-2 w-full rounded"
-        />
-
-        <input
-          type="file"
-          multiple
-          onChange={(e) => setProductImages(Array.from(e.target.files || []))}
-          className="w-full p-2 border rounded"
-        />
-
-        <button
-          onClick={handleUpdateItem}
-          disabled={loading}
-          className={`w-full text-white px-4 py-2 rounded transition ${
-            loading ? "bg-orange-300 cursor-not-allowed" : "bg-orange-500 hover:bg-orange-600"
-          }`}
-        >
-          {loading ? "Updating..." : "Update Item"}
-        </button>
-
-        <button
-          onClick={() => navigate("/admin/items")}
-          className="w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition mt-2"
-        >
-          Cancel
-        </button>
+      <div className="rounded-3xl border border-slate-200 bg-white shadow-premium p-8 space-y-6">
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">Product Key</label>
+          <input
+            type="text"
+            value={productKey}
+            readOnly
+            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed"
+          />
+        </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Name</label>
+            <input
+              type="text"
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Price</label>
+            <input
+              type="number"
+              value={productPrice}
+              onChange={(e) => setProductPrice(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+            />
+          </div>
+        </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Category</label>
+            <select
+              value={productCategory}
+              onChange={(e) => setProductCategory(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all bg-white"
+            >
+              <option value="audio">Audio</option>
+              <option value="lights">Lights</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Dimensions</label>
+            <input
+              type="text"
+              value={productDimensions}
+              onChange={(e) => setProductDimensions(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">Description</label>
+          <textarea
+            value={productDescription}
+            onChange={(e) => setProductDescription(e.target.value)}
+            rows={4}
+            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all resize-none"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">New Images (optional)</label>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={(e) => setProductImages(Array.from(e.target.files || []))}
+            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-accent/10 file:text-accent file:font-semibold file:cursor-pointer hover:file:bg-accent/20 transition-all"
+          />
+        </div>
+        <div className="flex gap-4 pt-4">
+          <button
+            onClick={handleUpdateItem}
+            disabled={loading}
+            className="flex-1 py-3.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark hover:shadow-glow transition-all duration-300 btn-premium disabled:opacity-70"
+          >
+            {loading ? "Updating…" : "Update Item"}
+          </button>
+          <button
+            onClick={() => navigate("/admin/items")}
+            className="px-8 py-3.5 rounded-xl border-2 border-slate-300 text-slate-700 font-semibold hover:border-slate-400 hover:bg-slate-50 transition-all duration-300"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );
 }
-
-

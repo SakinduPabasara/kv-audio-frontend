@@ -1,47 +1,93 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import toast from "react-hot-toast";
 import ProductCard from "../../components/productCard";
 
 export default function Items() {
-    const [state, setState] = useState("loading");  //loading, success, error
-    const [items, setItems] = useState([]);  // Array to hold items
-    useEffect(()=>{
-        if (state == "loading") {
-          axios
-            .get(`${import.meta.env.VITE_BACKEND_URL}/api/products`)   // Fetch items from the backend
-            .then((res) => {
-              console.log(res.data);  // Log the fetched data
-              setItems(res.data);  // Set the items state with the fetched data
-              setState("success");  // Update state to success
+  const [state, setState] = useState("loading");
+  const [items, setItems] = useState([]);
+  const containerRef = useRef(null);
 
-            }).catch((err) => {
-                toast.error(err?.response?.data?.error || "Failed to fetch items");  // Handle error response
-                setState("error");  // Update state to error if fetching fails
-            })
-        }
-            
-    },[])
-    return (
-      <div className="w-full h-screen flex flex-wrap justify-center pt-[50px]">
-        
-        {state == "loading" && (
-          <div className="w-full h-full flex justify-center items-center">
-            <div className="w-[50px] h-[50px] border-4 rounded-full border-t-green-500 animate-spin"></div>
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BACKEND_URL}/api/products`)
+      .then((res) => {
+        setItems(res.data);
+        setState("success");
+      })
+      .catch((err) => {
+        toast.error(err?.response?.data?.error || "Failed to fetch items");
+        setState("error");
+      });
+  }, []);
+
+  useEffect(() => {
+    if (state === "success" && items.length > 0) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry, idx) => {
+            if (entry.isIntersecting) {
+              setTimeout(() => {
+                entry.target.classList.add("animate-scale-in");
+                entry.target.style.opacity = "1";
+              }, idx * 100);
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+
+      const cards = containerRef.current?.querySelectorAll(".product-card");
+      cards?.forEach((card) => observer.observe(card));
+
+      return () => observer.disconnect();
+    }
+  }, [state, items]);
+
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-white to-slate-50 py-8 md:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12 animate-fade-in-down">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-3">Our Collection</h1>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            Premium audio and lighting equipment for every need
+          </p>
+        </div>
+
+        {state === "loading" && (
+          <div className="flex justify-center items-center py-32">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+              <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-gold/30 rounded-full animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
+            </div>
           </div>
         )}
-        {
-           state == "success" && 
-           items.map((item)=>{
-            return(
-                <ProductCard key={item.key} item={item}/>
-            )
 
-           }) 
-        }
-        
+        {state === "error" && (
+          <div className="rounded-3xl bg-white border-2 border-red-200 p-12 text-center max-w-md mx-auto animate-scale-in">
+            <div className="text-5xl mb-4">⚠️</div>
+            <p className="text-red-600 font-semibold text-lg mb-2">Could not load products</p>
+            <p className="text-slate-600">Check your connection and try again</p>
+          </div>
+        )}
+
+        {state === "success" && items.length === 0 && (
+          <div className="rounded-3xl bg-white border border-slate-200 p-16 text-center animate-fade-in">
+            <div className="text-5xl mb-4">📦</div>
+            <p className="text-slate-600 text-lg">No products available yet. Check back soon.</p>
+          </div>
+        )}
+
+        {state === "success" && items.length > 0 && (
+          <div ref={containerRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+            {items.map((item, idx) => (
+              <div key={item.key} className="product-card opacity-0">
+                <ProductCard item={item} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    );
+    </main>
+  );
 }
-
-
