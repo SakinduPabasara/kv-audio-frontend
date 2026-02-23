@@ -11,10 +11,18 @@ export default function UpdateItemPage() {
 
   const [productKey, setProductKey] = useState(productFromState?.key ?? "");
   const [productName, setProductName] = useState(productFromState?.name ?? "");
-  const [productPrice, setProductPrice] = useState(productFromState?.price ?? "");
-  const [productCategory, setProductCategory] = useState(productFromState?.category ?? "audio");
-  const [productDimensions, setProductDimensions] = useState(productFromState?.dimensions ?? "");
-  const [productDescription, setProductDescription] = useState(productFromState?.description ?? "");
+  const [productPrice, setProductPrice] = useState(
+    productFromState?.price ?? "",
+  );
+  const [productCategory, setProductCategory] = useState(
+    productFromState?.category ?? "audio",
+  );
+  const [productDimensions, setProductDimensions] = useState(
+    productFromState?.dimensions ?? "",
+  );
+  const [productDescription, setProductDescription] = useState(
+    productFromState?.description ?? "",
+  );
   const [productImages, setProductImages] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -37,7 +45,9 @@ export default function UpdateItemPage() {
     try {
       let imageUrls = productFromState?.image ?? [];
       if (productImages.length > 0) {
-        imageUrls = await Promise.all(productImages.map((file) => mediaUpload(file)));
+        imageUrls = await Promise.all(
+          productImages.map((file) => mediaUpload(file)),
+        );
       }
 
       await axios.put(
@@ -50,7 +60,7 @@ export default function UpdateItemPage() {
           description: productDescription,
           image: imageUrls,
         },
-        { headers: { Authorization: "Bearer " + token } }
+        { headers: { Authorization: "Bearer " + token } },
       );
       toast.success("Item updated successfully!", { icon: "✅" });
       navigate("/admin/items");
@@ -65,77 +75,93 @@ export default function UpdateItemPage() {
 
   return (
     <div className="p-6 md:p-8 max-w-2xl animate-fade-in">
-      <h1 className="text-3xl font-bold text-slate-900 mb-8">Update Item</h1>
+      <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">
+        Update Item
+      </h1>
 
-      <div className="rounded-3xl border border-slate-200 bg-white shadow-premium p-8 space-y-6">
+      <div className="rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-premium p-8 space-y-6">
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-2">Product Key</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            Product Key
+          </label>
           <input
             type="text"
             value={productKey}
             readOnly
-            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed"
+            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/30 text-slate-500 dark:text-slate-400 cursor-not-allowed"
           />
         </div>
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Name</label>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Name
+            </label>
             <input
               type="text"
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Price</label>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Price
+            </label>
             <input
               type="number"
               value={productPrice}
               onChange={(e) => setProductPrice(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
             />
           </div>
         </div>
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Category</label>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Category
+            </label>
             <select
               value={productCategory}
               onChange={(e) => setProductCategory(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all bg-white"
+              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all bg-white"
             >
               <option value="audio">Audio</option>
               <option value="lights">Lights</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Dimensions</label>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Dimensions
+            </label>
             <input
               type="text"
               value={productDimensions}
               onChange={(e) => setProductDimensions(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-2">Description</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            Description
+          </label>
           <textarea
             value={productDescription}
             onChange={(e) => setProductDescription(e.target.value)}
             rows={4}
-            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all resize-none"
+            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all resize-none"
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-2">New Images (optional)</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            New Images (optional)
+          </label>
           <input
             type="file"
             multiple
             accept="image/*"
             onChange={(e) => setProductImages(Array.from(e.target.files || []))}
-            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-accent/10 file:text-accent file:font-semibold file:cursor-pointer hover:file:bg-accent/20 transition-all"
+            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-accent/10 file:text-accent file:font-semibold file:cursor-pointer hover:file:bg-accent/20 transition-all"
           />
         </div>
         <div className="flex gap-4 pt-4">
@@ -148,7 +174,7 @@ export default function UpdateItemPage() {
           </button>
           <button
             onClick={() => navigate("/admin/items")}
-            className="px-8 py-3.5 rounded-xl border-2 border-slate-300 text-slate-700 font-semibold hover:border-slate-400 hover:bg-slate-50 transition-all duration-300"
+            className="px-8 py-3.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold hover:border-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-300"
           >
             Cancel
           </button>

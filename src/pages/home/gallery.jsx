@@ -24,7 +24,7 @@ export default function Gallery() {
           }
         });
       },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
     );
 
     const cards = containerRef.current?.querySelectorAll(".gallery-card");
@@ -34,20 +34,25 @@ export default function Gallery() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-slate-50 py-12 md:py-20">
+    <main className="min-h-screen bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 py-12 md:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 animate-fade-in-down">
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Gallery</h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+            Gallery
+          </h1>
+          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
             Events and setups powered by Wave Audio
           </p>
         </div>
 
-        <div ref={containerRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div
+          ref={containerRef}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+        >
           {placeholderImages.map((src, i) => (
             <div
               key={i}
-              className="gallery-card group relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-200 shadow-card hover:shadow-premium transition-all duration-500 hover:-translate-y-2 opacity-0"
+              className="gallery-card group relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-200 dark:bg-slate-700 shadow-card hover:shadow-premium transition-all duration-500 hover:-translate-y-2 opacity-0"
             >
               <img
                 src={src}

@@ -15,7 +15,7 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      <div className="w-full min-h-screen bg-primary pt-16">
+      <div className="w-full min-h-screen bg-primary dark:bg-slate-900 pt-16">
         <Routes>
           <Route path="/contact" element={<Contact />} />
           <Route path="/gallery" element={<Gallery />} />

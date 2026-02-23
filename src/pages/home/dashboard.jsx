@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { HiShoppingBag, HiMail, HiStar, HiUser, HiArrowRight } from "react-icons/hi";
+import {
+  HiShoppingBag,
+  HiMail,
+  HiStar,
+  HiUser,
+  HiArrowRight,
+} from "react-icons/hi";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -63,17 +69,21 @@ export default function Dashboard() {
   ];
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-slate-50 py-12 md:py-20">
+    <main className="min-h-screen bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 py-12 md:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">My Dashboard</h1>
-              <p className="text-slate-600">Welcome back, {user?.firstName || "User"}!</p>
+              <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
+                My Dashboard
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400">
+                Welcome back, {user?.firstName || "User"}!
+              </p>
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 text-red-600 font-medium hover:bg-red-100 transition"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-medium hover:bg-red-100 dark:hover:bg-red-900/50 transition"
             >
               <HiArrowRight className="w-5 h-5" />
               Logout
@@ -90,7 +100,9 @@ export default function Dashboard() {
                   {user?.firstName} {user?.lastName}
                 </h2>
                 <p className="text-white/80">{user?.email}</p>
-                <p className="text-sm text-white/60 mt-1 capitalize">{user?.role || "Customer"}</p>
+                <p className="text-sm text-white/60 mt-1 capitalize">
+                  {user?.role || "Customer"}
+                </p>
               </div>
             </div>
           </div>
@@ -101,60 +113,82 @@ export default function Dashboard() {
             <Link
               key={link.to}
               to={link.to}
-              className="group rounded-3xl bg-white border border-slate-200 shadow-card p-6 hover:shadow-premium hover:-translate-y-1 transition-all duration-300 animate-fade-in-up"
+              className="group rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-card p-6 hover:shadow-premium hover:-translate-y-1 transition-all duration-300 animate-fade-in-up"
               style={{ animationDelay: `${idx * 0.1}s` }}
             >
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${link.color} text-white flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+              <div
+                className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${link.color} text-white flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+              >
                 {link.icon}
               </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-1">{link.title}</h3>
-              <p className="text-sm text-slate-600">{link.description}</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+                {link.title}
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                {link.description}
+              </p>
             </Link>
           ))}
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          <div className="rounded-3xl bg-white border border-slate-200 shadow-card p-6 md:p-8">
-            <h3 className="text-xl font-bold text-slate-900 mb-6">Quick Actions</h3>
+          <div className="rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-card p-6 md:p-8">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">
+              Quick Actions
+            </h3>
             <div className="space-y-3">
               <Link
                 to="/items"
-                className="block p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition text-slate-900 font-medium"
+                className="block p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition text-slate-900 dark:text-white font-medium"
               >
                 Browse Products
               </Link>
               <Link
                 to="/contact"
-                className="block p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition text-slate-900 font-medium"
+                className="block p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition text-slate-900 dark:text-white font-medium"
               >
                 Contact Support
               </Link>
               <Link
                 to="/gallery"
-                className="block p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition text-slate-900 font-medium"
+                className="block p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition text-slate-900 dark:text-white font-medium"
               >
                 View Gallery
               </Link>
             </div>
           </div>
 
-          <div className="rounded-3xl bg-white border border-slate-200 shadow-card p-6 md:p-8">
-            <h3 className="text-xl font-bold text-slate-900 mb-6">Account Information</h3>
+          <div className="rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-card p-6 md:p-8">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">
+              Account Information
+            </h3>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-slate-600 mb-1">Email</p>
-                <p className="font-medium text-slate-900">{user?.email}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                  Email
+                </p>
+                <p className="font-medium text-slate-900 dark:text-white">
+                  {user?.email}
+                </p>
               </div>
               {user?.phone && (
                 <div>
-                  <p className="text-sm text-slate-600 mb-1">Phone</p>
-                  <p className="font-medium text-slate-900">{user.phone}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                    Phone
+                  </p>
+                  <p className="font-medium text-slate-900 dark:text-white">
+                    {user.phone}
+                  </p>
                 </div>
               )}
               {user?.address && (
                 <div>
-                  <p className="text-sm text-slate-600 mb-1">Address</p>
-                  <p className="font-medium text-slate-900">{user.address}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                    Address
+                  </p>
+                  <p className="font-medium text-slate-900 dark:text-white">
+                    {user.address}
+                  </p>
                 </div>
               )}
             </div>

@@ -2,7 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { HiShoppingBag, HiCalendar, HiCheckCircle, HiXCircle, HiClock } from "react-icons/hi";
+import {
+  HiShoppingBag,
+  HiCalendar,
+  HiCheckCircle,
+  HiXCircle,
+  HiClock,
+} from "react-icons/hi";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -36,22 +42,28 @@ export default function Orders() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-white to-slate-50 py-12 flex items-center justify-center">
+      <main className="min-h-screen bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 py-12 flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-slate-50 py-12 md:py-20">
+    <main className="min-h-screen bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 py-12 md:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-slate-900 mb-8">My Orders</h1>
+        <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-8">
+          My Orders
+        </h1>
 
         {orders.length === 0 ? (
-          <div className="text-center py-20 rounded-3xl bg-white border border-slate-200 shadow-card">
-            <HiShoppingBag className="w-20 h-20 text-slate-300 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">No orders yet</h2>
-            <p className="text-slate-600 mb-8">Start shopping to see your orders here</p>
+          <div className="text-center py-20 rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-card">
+            <HiShoppingBag className="w-20 h-20 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+              No orders yet
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-8">
+              Start shopping to see your orders here
+            </p>
             <button
               onClick={() => navigate("/items")}
               className="px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition"
@@ -64,13 +76,15 @@ export default function Orders() {
             {orders.map((order, idx) => (
               <div
                 key={order.orderId}
-                className="rounded-3xl bg-white border border-slate-200 shadow-card p-6 md:p-8 animate-fade-in-up"
+                className="rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-card p-6 md:p-8 animate-fade-in-up"
                 style={{ animationDelay: `${idx * 0.1}s` }}
               >
                 <div className="flex items-start justify-between mb-6">
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-1">Order {order.orderId}</h3>
-                    <p className="text-sm text-slate-600">
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
+                      Order {order.orderId}
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
                       Placed on {new Date(order.orderDate).toLocaleDateString()}
                     </p>
                   </div>
@@ -97,15 +111,20 @@ export default function Orders() {
 
                 <div className="space-y-4 mb-6">
                   {order.orderedItems.map((item, i) => (
-                    <div key={i} className="flex gap-4 p-4 rounded-xl bg-slate-50">
+                    <div
+                      key={i}
+                      className="flex gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50"
+                    >
                       <img
                         src={item.product.image}
                         alt={item.product.name}
                         className="w-16 h-16 rounded-lg object-cover"
                       />
                       <div className="flex-1">
-                        <h4 className="font-semibold text-slate-900">{item.product.name}</h4>
-                        <p className="text-sm text-slate-600">
+                        <h4 className="font-semibold text-slate-900 dark:text-white">
+                          {item.product.name}
+                        </h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">
                           Quantity: {item.quantity} × Rs. {item.product.price}
                         </p>
                       </div>
@@ -113,8 +132,8 @@ export default function Orders() {
                   ))}
                 </div>
 
-                <div className="flex items-center justify-between pt-6 border-t border-slate-200">
-                  <div className="flex items-center gap-4 text-sm text-slate-600">
+                <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-slate-700">
+                  <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
                     <div className="flex items-center gap-2">
                       <HiCalendar className="w-4 h-4" />
                       <span>
@@ -123,11 +142,15 @@ export default function Orders() {
                       </span>
                     </div>
                     <span>•</span>
-                    <span>{order.days} day{order.days !== 1 ? "s" : ""}</span>
+                    <span>
+                      {order.days} day{order.days !== 1 ? "s" : ""}
+                    </span>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-slate-600">Total Amount</p>
-                    <p className="text-2xl font-bold text-accent">Rs. {order.totalAmount}</p>
+                    <p className="text-2xl font-bold text-accent">
+                      Rs. {order.totalAmount}
+                    </p>
                   </div>
                 </div>
               </div>

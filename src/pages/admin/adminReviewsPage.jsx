@@ -14,7 +14,9 @@ export default function AdminReviewsPage() {
 
   const loadReviews = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/reviews`);
+      const res = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/reviews`,
+      );
       setReviews(res.data);
     } catch (err) {
       toast.error("Failed to load reviews");
@@ -29,7 +31,7 @@ export default function AdminReviewsPage() {
       await axios.put(
         `${import.meta.env.VITE_BACKEND_URL}/api/reviews/approve/${email}`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Review approved");
       loadReviews();
@@ -42,9 +44,12 @@ export default function AdminReviewsPage() {
     if (!window.confirm("Are you sure you want to delete this review?")) return;
     const token = localStorage.getItem("token");
     try {
-      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/reviews/${email}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/api/reviews/${email}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       toast.success("Review deleted");
       loadReviews();
     } catch (err) {
@@ -69,12 +74,16 @@ export default function AdminReviewsPage() {
   return (
     <div className="p-6 md:p-8 animate-fade-in">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Customer Reviews</h1>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+          Customer Reviews
+        </h1>
         <div className="flex gap-2">
           <button
             onClick={() => setFilter("all")}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
-              filter === "all" ? "bg-accent text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              filter === "all"
+                ? "bg-accent text-white"
+                : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
             }`}
           >
             All ({reviews.length})
@@ -82,7 +91,9 @@ export default function AdminReviewsPage() {
           <button
             onClick={() => setFilter("approved")}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
-              filter === "approved" ? "bg-accent text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              filter === "approved"
+                ? "bg-accent text-white"
+                : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
             }`}
           >
             Approved ({reviews.filter((r) => r.isApproved).length})
@@ -90,7 +101,9 @@ export default function AdminReviewsPage() {
           <button
             onClick={() => setFilter("pending")}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
-              filter === "pending" ? "bg-accent text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              filter === "pending"
+                ? "bg-accent text-white"
+                : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
             }`}
           >
             Pending ({reviews.filter((r) => !r.isApproved).length})
@@ -99,30 +112,34 @@ export default function AdminReviewsPage() {
       </div>
 
       {filteredReviews.length === 0 ? (
-        <div className="text-center py-16 rounded-3xl bg-white border border-slate-200">
+        <div className="text-center py-16 rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
           <HiStar className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <p className="text-slate-600">No reviews found</p>
+          <p className="text-slate-600 dark:text-slate-400">No reviews found</p>
         </div>
       ) : (
         <div className="space-y-6">
           {filteredReviews.map((review, idx) => (
             <div
               key={review.email}
-              className="rounded-3xl bg-white border border-slate-200 shadow-card p-6 md:p-8 animate-fade-in-up"
+              className="rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-card p-6 md:p-8 animate-fade-in-up"
               style={{ animationDelay: `${idx * 0.05}s` }}
             >
               <div className="flex items-start gap-4">
                 <img
                   src={review.profilePicture}
                   alt={review.name}
-                  className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-200"
+                  className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-600"
                 />
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <div>
-                      <h3 className="font-bold text-slate-900">{review.name}</h3>
-                      <p className="text-sm text-slate-500">{review.email}</p>
-                      <p className="text-xs text-slate-400 mt-1">
+                      <h3 className="font-bold text-slate-900 dark:text-white">
+                        {review.name}
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        {review.email}
+                      </p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                         {new Date(review.date).toLocaleDateString()}
                       </p>
                     </div>
@@ -130,30 +147,32 @@ export default function AdminReviewsPage() {
                       {[1, 2, 3, 4, 5].map((star) => (
                         <HiStar
                           key={star}
-                          className={`w-5 h-5 ${star <= review.rating ? "text-yellow-400" : "text-slate-300"}`}
+                          className={`w-5 h-5 ${star <= review.rating ? "text-yellow-400" : "text-slate-300 dark:text-slate-600"}`}
                         />
                       ))}
                     </div>
                   </div>
-                  <p className="text-slate-700 mb-4 leading-relaxed">{review.comment}</p>
+                  <p className="text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">
+                    {review.comment}
+                  </p>
                   <div className="flex items-center gap-2">
                     {!review.isApproved ? (
                       <button
                         onClick={() => handleApprove(review.email)}
-                        className="px-4 py-2 rounded-lg bg-green-50 text-green-600 text-sm font-medium hover:bg-green-100 transition flex items-center gap-1"
+                        className="px-4 py-2 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-sm font-medium hover:bg-green-100 dark:hover:bg-green-900/50 transition flex items-center gap-1"
                       >
                         <HiCheckCircle className="w-4 h-4" />
                         Approve
                       </button>
                     ) : (
-                      <span className="px-4 py-2 rounded-lg bg-green-100 text-green-700 text-sm font-semibold flex items-center gap-1">
+                      <span className="px-4 py-2 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-semibold flex items-center gap-1">
                         <HiCheckCircle className="w-4 h-4" />
                         Approved
                       </span>
                     )}
                     <button
                       onClick={() => handleDelete(review.email)}
-                      className="px-4 py-2 rounded-lg bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition flex items-center gap-1"
+                      className="px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/50 transition flex items-center gap-1"
                     >
                       <HiTrash className="w-4 h-4" />
                       Delete
