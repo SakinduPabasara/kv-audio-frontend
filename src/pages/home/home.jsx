@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   HiArrowRight,
   HiMicrophone,
@@ -20,6 +21,138 @@ import {
   staggerContainer,
   viewportOnce,
 } from "../../utils/animations";
+
+/* ── ReviewsSection component ───────────────────────── */
+function StarRating({ rating }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <HiStar
+          key={s}
+          className={`w-4 h-4 ${
+            s <= rating ? "text-amber-400" : "text-slate-300 dark:text-slate-600"
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ReviewsSection() {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BACKEND_URL}/api/reviews`)
+      .then((res) => {
+        // Only show approved reviews on the public home page
+        setReviews(res.data.filter((r) => r.isApproved));
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Don't render the section at all if no approved reviews and not loading
+  if (!loading && reviews.length === 0) return null;
+
+  return (
+    <section className="py-20 md:py-28 bg-white dark:bg-slate-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+          className="text-center mb-14"
+        >
+          <p className="text-xs font-bold text-cta uppercase tracking-widest mb-3">
+            Client Testimonials
+          </p>
+          <h2 className="font-heading text-3xl md:text-4xl font-black text-slate-900 dark:text-white">
+            What our clients say
+          </h2>
+        </motion.div>
+
+        {/* Skeleton */}
+        {loading && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="rounded-3xl bg-slate-100 dark:bg-slate-800 p-6 animate-pulse">
+                <div className="flex gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24" />
+                    <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-16" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded" />
+                  <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6" />
+                  <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-4/6" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Cards grid */}
+        {!loading && reviews.length > 0 && (
+          <motion.div
+            variants={staggerContainer(0.1)}
+            initial="hidden"
+            whileInView="show"
+            viewport={viewportOnce}
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {reviews.map((review, idx) => (
+              <motion.div
+                key={review._id || idx}
+                variants={fadeUp}
+                className="group flex flex-col justify-between rounded-3xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 shadow-card hover:shadow-premium hover:-translate-y-1 transition-all duration-300 p-6"
+              >
+                {/* Stars + comment */}
+                <div>
+                  <StarRating rating={review.rating} />
+                  <p className="mt-4 text-slate-600 dark:text-slate-300 text-sm leading-relaxed line-clamp-4">
+                    "{review.comment}"
+                  </p>
+                </div>
+
+                {/* Reviewer identity */}
+                <div className="flex items-center gap-3 mt-6 pt-5 border-t border-slate-200 dark:border-slate-700">
+                  <img
+                    src={review.profilePicture}
+                    alt={review.name}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg";
+                    }}
+                  />
+                  <div>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{review.name}</p>
+                    <p className="text-xs text-slate-400">
+                      {new Date(review.date).toLocaleDateString("en-US", {
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                  {/* Big decorative quote */}
+                  <span className="ml-auto text-5xl leading-none text-slate-200 dark:text-slate-700 font-serif select-none">
+                    &ldquo;
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </div>
+    </section>
+  );
+}
 
 /* ── Data ───────────────────────────────────────────── */
 const features = [
@@ -338,8 +471,14 @@ export default function Home() {
       </section>
 
       {/* ════════════════════════════════
+          CUSTOMER REVIEWS
+      ════════════════════════════════ */}
+      <ReviewsSection />
+
+      {/* ════════════════════════════════
           CTA BANNER
       ════════════════════════════════ */}
+
       <section className="relative bg-slate-900 dark:bg-gray-900 py-20 md:py-28 overflow-hidden">
         {/* Grid overlay */}
         <div
