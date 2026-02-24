@@ -18,6 +18,7 @@ import {
 } from "react-icons/hi";
 import { motion } from "framer-motion";
 import { fadeUp, staggerContainer } from "../../utils/animations";
+import { GoogleLogin } from "@react-oauth/google";
 
 const inputBase =
   "w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-cta focus:ring-2 focus:ring-cta/20 transition-all duration-150";
@@ -96,6 +97,20 @@ export default function RegisterPage() {
         if (msg.toLowerCase().includes("email")) setErrors({ email: "This email is already registered" });
       })
       .finally(() => setLoading(false));
+  }
+
+  async function handleGoogleSuccess(credentialResponse) {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+    try {
+      const res = await axios.post(`${backendUrl}/api/users/google-auth`, {
+        credential: credentialResponse.credential,
+      });
+      toast.success("Signed up with Google! Welcome 🎉");
+      localStorage.setItem("token", res.data.token);
+      navigate("/");
+    } catch {
+      toast.error("Google sign-up failed. Please try again.");
+    }
   }
 
   const strengthColor = pwStrength <= 2 ? "bg-red-500" : pwStrength <= 3 ? "bg-yellow-500" : "bg-green-500";
@@ -374,6 +389,25 @@ export default function RegisterPage() {
                   </>
                 )}
               </button>
+            </motion.div>
+
+            {/* ── Google Sign-up ── */}
+            <motion.div variants={fadeUp} className="relative pt-1">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+                <span className="text-xs text-slate-400">or sign up with</span>
+                <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+              </div>
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => toast.error("Google sign-up failed.")}
+                  theme="outline"
+                  shape="rectangular"
+                  width="460"
+                  text="signup_with"
+                />
+              </div>
             </motion.div>
 
             {/* Divider + login link */}

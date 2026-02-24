@@ -14,7 +14,8 @@ import {
   HiStar,
 } from "react-icons/hi";
 import { motion } from "framer-motion";
-import { fadeUp, staggerContainer, viewportOnce } from "../../utils/animations";
+import { fadeUp, staggerContainer } from "../../utils/animations";
+import { GoogleLogin } from "@react-oauth/google";
 
 const inputBase =
   "w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-cta focus:ring-2 focus:ring-cta/20 transition-all duration-150";
@@ -74,6 +75,21 @@ export default function LoginPage() {
         if (err.response?.status === 401) setErrors({ password: "Incorrect email or password" });
       })
       .finally(() => setLoading(false));
+  }
+
+  async function handleGoogleSuccess(credentialResponse) {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+    try {
+      const res = await axios.post(`${backendUrl}/api/users/google-auth`, {
+        credential: credentialResponse.credential,
+      });
+      toast.success("Signed in with Google!");
+      localStorage.setItem("token", res.data.token);
+      if (res.data.user?.role === "admin") navigate("/admin");
+      else navigate("/");
+    } catch {
+      toast.error("Google sign-in failed. Please try again.");
+    }
   }
 
   return (
@@ -270,6 +286,25 @@ export default function LoginPage() {
                   </>
                 )}
               </button>
+            </motion.div>
+
+            {/* ── Google Sign-in ── */}
+            <motion.div variants={fadeUp} className="relative">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+                <span className="text-xs text-slate-400">or continue with</span>
+                <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+              </div>
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => toast.error("Google sign-in failed.")}
+                  theme="outline"
+                  shape="rectangular"
+                  width="380"
+                  text="signin_with"
+                />
+              </div>
             </motion.div>
 
             {/* Divider + link */}

@@ -6,6 +6,7 @@ import {
   HiStar,
   HiUser,
   HiArrowRight,
+  HiCog,
 } from "react-icons/hi";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -81,6 +82,17 @@ export default function Dashboard() {
                 Welcome back, {user?.firstName || "User"}!
               </p>
             </div>
+          <div className="flex items-center gap-3">
+            {/* Admin Panel shortcut — only for admins */}
+            {user?.role === "admin" && (
+              <Link
+                to="/admin"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cta text-white font-semibold text-sm hover:bg-cta-dark transition shadow-md shadow-cta/20"
+              >
+                <HiCog className="w-4 h-4" />
+                Admin Panel
+              </Link>
+            )}
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-medium hover:bg-red-100 dark:hover:bg-red-900/50 transition"
@@ -88,6 +100,7 @@ export default function Dashboard() {
               <HiArrowRight className="w-5 h-5" />
               Logout
             </button>
+          </div>
           </div>
 
           <div className="rounded-3xl bg-gradient-to-br from-accent to-accent-dark text-white p-8 md:p-12">
@@ -137,6 +150,18 @@ export default function Dashboard() {
               Quick Actions
             </h3>
             <div className="space-y-3">
+              {user?.role === "admin" && (
+                <Link
+                  to="/admin"
+                  className="flex items-center justify-between p-4 rounded-xl bg-cta/10 dark:bg-cta/15 text-cta font-semibold hover:bg-cta/20 dark:hover:bg-cta/25 transition group"
+                >
+                  <span className="flex items-center gap-2">
+                    <HiCog className="w-4 h-4" />
+                    Admin Panel
+                  </span>
+                  <HiArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              )}
               <Link
                 to="/items"
                 className="block p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition text-slate-900 dark:text-white font-medium"
