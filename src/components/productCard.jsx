@@ -1,50 +1,77 @@
 import { Link } from "react-router-dom";
-import { HiArrowRight } from "react-icons/hi";
+import { HiArrowRight, HiCheckCircle } from "react-icons/hi";
+import { motion } from "framer-motion";
+import { fadeUp } from "../utils/animations";
 
-export default function ProductCard(props) {
-  const item = props.item;
+export default function ProductCard({ item }) {
+  const price =
+    typeof item.price === "number"
+      ? `Rs. ${item.price.toLocaleString()}`
+      : item.price;
+
   return (
-    <div className="group bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/80 dark:border-slate-700/80 shadow-card hover:shadow-premium transition-all duration-500 overflow-hidden hover:-translate-y-2">
-      <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 relative">
+    <motion.div
+      variants={fadeUp}
+      className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden flex flex-col transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/8"
+    >
+      {/* ── Image ── */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-800">
         <img
           src={item.image?.[0]}
           alt={item.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        {item.availability && (
-          <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-emerald-500/90 backdrop-blur-sm text-white text-xs font-semibold shadow-lg animate-fade-in">
-            In Stock
-          </div>
-        )}
-      </div>
-      <div className="p-6">
-        <div className="mb-2">
-          <span className="inline-block px-2.5 py-1 rounded-lg bg-accent/10 text-accent text-xs font-semibold uppercase tracking-wider">
-            {item.category}
-          </span>
+        {/* Availability badge */}
+        <div
+          className={`absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide backdrop-blur-sm ${
+            item.availability
+              ? "bg-emerald-500/90 text-white"
+              : "bg-slate-800/80 text-slate-300"
+          }`}
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${
+              item.availability ? "bg-white" : "bg-slate-400"
+            }`}
+          />
+          {item.availability ? "In Stock" : "Unavailable"}
         </div>
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2 line-clamp-2 group-hover:text-accent dark:group-hover:text-accent transition-colors">
+      </div>
+
+      {/* ── Content ── */}
+      <div className="p-5 flex flex-col flex-1">
+        {/* Category */}
+        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
+          {item.category}
+        </p>
+
+        {/* Name */}
+        <h2 className="font-heading text-base font-bold text-slate-900 dark:text-white mb-2 line-clamp-2 group-hover:text-cta transition-colors duration-150">
           {item.name}
         </h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2 min-h-[2.5rem]">
+
+        {/* Description */}
+        <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed flex-1 mb-4">
           {item.description}
         </p>
-        <div className="flex justify-between items-center mb-5">
-          <p className="text-2xl font-bold text-accent">
-            {typeof item.price === "number"
-              ? `Rs. ${item.price.toLocaleString()}`
-              : item.price}
+
+        {/* Price row */}
+        <div className="flex items-baseline justify-between mb-4">
+          <p className="font-heading text-xl font-bold text-slate-900 dark:text-white">
+            {price}
           </p>
+          <span className="text-xs text-slate-400 dark:text-slate-500">/ day</span>
         </div>
+
+        {/* CTA */}
         <Link
           to={"/product/" + item.key}
-          className="group/btn flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark hover:shadow-glow transition-all duration-300 btn-premium"
+          className="flex items-center justify-center gap-2 w-full py-2.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-sm font-semibold rounded-lg hover:bg-cta dark:hover:bg-cta dark:hover:text-white transition-colors duration-200"
         >
           View Details
-          <HiArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+          <HiArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
       </div>
-    </div>
+    </motion.div>
   );
 }

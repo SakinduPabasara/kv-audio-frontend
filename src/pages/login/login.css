@@ -1,9 +1,1 @@
-.bg-picture{
-    background-image: url("/bg.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 100vh;
-    width: 100%;
-    position: relative;
-}
+/* Login page CSS - bg-picture class no longer used */

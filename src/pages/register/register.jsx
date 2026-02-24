@@ -1,4 +1,3 @@
-import "./register.css";
 import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -12,474 +11,391 @@ import {
   HiEye,
   HiEyeOff,
   HiCheckCircle,
+  HiArrowRight,
+  HiMicrophone,
+  HiCalendar,
+  HiStar,
 } from "react-icons/hi";
+import { motion } from "framer-motion";
+import { fadeUp, staggerContainer } from "../../utils/animations";
+
+const inputBase =
+  "w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-cta focus:ring-2 focus:ring-cta/20 transition-all duration-150";
+
+const inputError =
+  "border-red-400 dark:border-red-500 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-900/30";
+
+const inputOk = "border-green-400 dark:border-green-600 focus:border-green-500 focus:ring-green-200";
+
+const features = [
+  { icon: <HiMicrophone className="w-4 h-4" />, text: "Industry-standard equipment" },
+  { icon: <HiCalendar className="w-4 h-4" />, text: "Flexible rental packages" },
+  { icon: <HiStar className="w-4 h-4" />, text: "Trusted by 200+ events" },
+];
 
 export default function RegisterPage() {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    address: "",
-    phone: "",
+  const [form, setForm] = useState({
+    firstName: "", lastName: "", email: "",
+    password: "", confirmPassword: "", address: "", phone: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [pwStrength, setPwStrength] = useState(0);
   const navigate = useNavigate();
 
-  const checkPasswordStrength = (pwd) => {
-    let strength = 0;
-    if (pwd.length >= 6) strength++;
-    if (pwd.length >= 8) strength++;
-    if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) strength++;
-    if (/\d/.test(pwd)) strength++;
-    if (/[^a-zA-Z\d]/.test(pwd)) strength++;
-    return strength;
+  const calcStrength = (pwd) => {
+    let s = 0;
+    if (pwd.length >= 6) s++;
+    if (pwd.length >= 8) s++;
+    if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) s++;
+    if (/\d/.test(pwd)) s++;
+    if (/[^a-zA-Z\d]/.test(pwd)) s++;
+    return s;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-
-    // Check password strength
-    if (name === "password") {
-      setPasswordStrength(checkPasswordStrength(value));
-    }
+    setForm((p) => ({ ...p, [name]: value }));
+    if (errors[name]) setErrors((p) => ({ ...p, [name]: "" }));
+    if (name === "password") setPwStrength(calcStrength(value));
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = "First name is required";
-    }
-
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "Last name is required";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    if (formData.phone && !/^[\d\s\+\-\(\)]+$/.test(formData.phone)) {
-      newErrors.phone = "Please enter a valid phone number";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const validate = () => {
+    const e = {};
+    if (!form.firstName.trim()) e.firstName = "Required";
+    if (!form.lastName.trim()) e.lastName = "Required";
+    if (!form.email.trim()) e.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Enter a valid email";
+    if (!form.password) e.password = "Password is required";
+    else if (form.password.length < 6) e.password = "At least 6 characters";
+    if (!form.confirmPassword) e.confirmPassword = "Please confirm your password";
+    else if (form.password !== form.confirmPassword) e.confirmPassword = "Passwords don't match";
+    if (form.phone && !/^[\d\s+\-()]+$/.test(form.phone)) e.phone = "Enter a valid phone number";
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
-  function handleOnSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault();
-    if (!validateForm()) {
-      toast.error("Please fix the errors below");
-      return;
-    }
-
+    if (!validate()) { toast.error("Please fix the errors below"); return; }
     setLoading(true);
-    setErrors({});
-
     axios
       .post(`${import.meta.env.VITE_BACKEND_URL}/api/users/`, {
-        email: formData.email,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        password: formData.password,
-        address: formData.address,
-        phone: formData.phone,
+        email: form.email, firstName: form.firstName, lastName: form.lastName,
+        password: form.password, address: form.address, phone: form.phone,
       })
       .then(() => {
-        toast.success("Account created successfully! Please sign in.", {
-          icon: "🎉",
-          duration: 4000,
-        });
+        toast.success("Account created! Please sign in.", { icon: "🎉", duration: 4000 });
         navigate("/login");
       })
       .catch((err) => {
-        const errorMsg =
-          err?.response?.data?.error ||
-          "Registration failed. Please try again.";
-        toast.error(errorMsg);
-        if (err.response?.data?.error?.toLowerCase().includes("email")) {
-          setErrors({ email: "This email is already registered" });
-        }
+        const msg = err?.response?.data?.error || "Registration failed. Please try again.";
+        toast.error(msg);
+        if (msg.toLowerCase().includes("email")) setErrors({ email: "This email is already registered" });
       })
       .finally(() => setLoading(false));
   }
 
-  const getPasswordStrengthColor = () => {
-    if (passwordStrength <= 2) return "bg-red-500";
-    if (passwordStrength <= 3) return "bg-yellow-500";
-    return "bg-green-500";
-  };
+  const strengthColor = pwStrength <= 2 ? "bg-red-500" : pwStrength <= 3 ? "bg-yellow-500" : "bg-green-500";
+  const strengthLabel = pwStrength <= 2 ? "Weak" : pwStrength <= 3 ? "Medium" : "Strong";
+  const strengthTextColor = pwStrength <= 2 ? "text-red-600" : pwStrength <= 3 ? "text-yellow-600" : "text-green-600";
 
-  const getPasswordStrengthText = () => {
-    if (passwordStrength <= 2) return "Weak";
-    if (passwordStrength <= 3) return "Medium";
-    return "Strong";
-  };
+  const pwMatch = form.confirmPassword && form.password === form.confirmPassword;
 
   return (
-    <div className="bg-picture min-h-screen flex flex-col justify-center items-center p-4 py-8 md:py-12">
-      <div className="w-full max-w-2xl animate-scale-in">
-        <form
-          onSubmit={handleOnSubmit}
-          autoComplete="off"
-          className="glass rounded-3xl shadow-premium border border-white/30 p-6 md:p-10"
-        >
-          <div className="text-center mb-6 md:mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-accent to-accent-dark mb-3 ring-4 ring-accent/20">
-              <img
-                src="/logo.png"
-                alt="Wave Audio"
-                className="w-14 h-14 md:w-16 md:h-16 object-cover rounded-full"
-              />
-            </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-1">
-              Create Your Account
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base">
-              Join Wave Audio and get started today
-            </p>
+    <div className="min-h-screen flex">
+      {/* ── Left brand panel ── */}
+      <div className="hidden lg:flex lg:w-[38%] bg-slate-950 flex-col justify-between p-12">
+        <Link to="/" className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-cta flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 28 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-4">
+              <rect x="0" y="8" width="4" height="12" rx="1" fill="white"/>
+              <rect x="6" y="4" width="4" height="16" rx="1" fill="white"/>
+              <rect x="12" y="0" width="4" height="20" rx="1" fill="white"/>
+              <rect x="18" y="4" width="4" height="16" rx="1" fill="white"/>
+              <rect x="24" y="8" width="4" height="12" rx="1" fill="white"/>
+            </svg>
           </div>
+          <span className="font-heading font-bold text-lg text-white tracking-tight">Waudio</span>
+        </Link>
 
-          <div className="space-y-4 md:space-y-5">
-            {/* Name Fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <motion.div variants={staggerContainer(0.12)} initial="hidden" animate="show">
+            <motion.p variants={fadeUp} className="text-xs font-semibold text-cta uppercase tracking-widest mb-4">
+              Join Waudio
+            </motion.p>
+            <motion.h2 variants={fadeUp} className="font-heading text-4xl font-bold text-white leading-tight mb-6">
+              Your events,
+              <br />elevated.
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-slate-400 text-sm leading-relaxed mb-10 max-w-xs">
+              Create your account and get instant access to our full catalogue
+              of professional audio &amp; lighting gear.
+            </motion.p>
+            <motion.div variants={staggerContainer(0.1)} className="space-y-3">
+              {features.map((f) => (
+                <motion.div key={f.text} variants={fadeUp} className="flex items-center gap-3 text-sm text-slate-300">
+                  <div className="w-7 h-7 rounded-full bg-cta/15 flex items-center justify-center text-cta shrink-0">{f.icon}</div>
+                  {f.text}
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        </div>
+
+        <p className="text-slate-600 text-xs">© {new Date().getFullYear()} Waudio. All rights reserved.</p>
+      </div>
+
+      {/* ── Right form panel ── */}
+      <div className="flex-1 bg-white dark:bg-gray-950 flex flex-col justify-center items-center px-6 py-12">
+        {/* Mobile logo */}
+        <Link to="/" className="flex items-center gap-3 mb-8 lg:hidden">
+          <div className="w-9 h-9 rounded-lg bg-cta flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 28 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-4">
+              <rect x="0" y="8" width="4" height="12" rx="1" fill="white"/>
+              <rect x="6" y="4" width="4" height="16" rx="1" fill="white"/>
+              <rect x="12" y="0" width="4" height="20" rx="1" fill="white"/>
+              <rect x="18" y="4" width="4" height="16" rx="1" fill="white"/>
+              <rect x="24" y="8" width="4" height="12" rx="1" fill="white"/>
+            </svg>
+          </div>
+          <span className="font-heading font-bold text-lg text-slate-900 dark:text-white tracking-tight">Waudio</span>
+        </Link>
+
+        <motion.div
+          variants={staggerContainer(0.08)}
+          initial="hidden"
+          animate="show"
+          className="w-full max-w-[520px]"
+        >
+          {/* Header */}
+          <motion.div variants={fadeUp} className="mb-8">
+            <h1 className="font-heading text-3xl font-bold text-slate-900 dark:text-white mb-2">
+              Create account
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Fill in your details to get started — it only takes a minute.
+            </p>
+          </motion.div>
+
+          <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
+            {/* Name row */}
+            <motion.div variants={fadeUp} className="grid grid-cols-2 gap-4">
               <div>
-                <label
-                  htmlFor="firstName"
-                  className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2"
-                >
-                  First Name <span className="text-red-500">*</span>
+                <label htmlFor="firstName" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  First name <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <HiUser className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                  <HiUser className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                   <input
                     id="firstName"
                     name="firstName"
                     type="text"
                     placeholder="John"
                     autoComplete="given-name"
-                    className={`w-full pl-10 pr-4 py-3 rounded-xl border-2 transition-all bg-white dark:bg-slate-700/80 dark:text-white dark:placeholder-slate-400 ${
-                      errors.firstName
-                        ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200"
-                        : "border-slate-200 dark:border-slate-600 focus:border-accent focus:ring-2 focus:ring-accent/20"
-                    } outline-none`}
-                    value={formData.firstName}
+                    className={`${inputBase} pl-10 ${errors.firstName ? inputError : ""}`}
+                    value={form.firstName}
                     onChange={handleChange}
                     required
-                    aria-invalid={!!errors.firstName}
                   />
                 </div>
-                {errors.firstName && (
-                  <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1">
-                    <span>⚠️</span> {errors.firstName}
-                  </p>
-                )}
+                {errors.firstName && <p className="mt-1 text-xs text-red-600">{errors.firstName}</p>}
               </div>
               <div>
-                <label
-                  htmlFor="lastName"
-                  className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2"
-                >
-                  Last Name <span className="text-red-500">*</span>
+                <label htmlFor="lastName" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Last name <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <HiUser className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                  <HiUser className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                   <input
                     id="lastName"
                     name="lastName"
                     type="text"
                     placeholder="Doe"
                     autoComplete="family-name"
-                    className={`w-full pl-10 pr-4 py-3 rounded-xl border-2 transition-all bg-white dark:bg-slate-700/80 dark:text-white dark:placeholder-slate-400 ${
-                      errors.lastName
-                        ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200"
-                        : "border-slate-200 dark:border-slate-600 focus:border-accent focus:ring-2 focus:ring-accent/20"
-                    } outline-none`}
-                    value={formData.lastName}
+                    className={`${inputBase} pl-10 ${errors.lastName ? inputError : ""}`}
+                    value={form.lastName}
                     onChange={handleChange}
                     required
-                    aria-invalid={!!errors.lastName}
                   />
                 </div>
-                {errors.lastName && (
-                  <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1">
-                    <span>⚠️</span> {errors.lastName}
-                  </p>
-                )}
+                {errors.lastName && <p className="mt-1 text-xs text-red-600">{errors.lastName}</p>}
               </div>
-            </div>
+            </motion.div>
 
             {/* Email */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2"
-              ></label>
+            <motion.div variants={fadeUp}>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Email address <span className="text-red-500">*</span>
+              </label>
               <div className="relative">
-                <HiMail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                <HiMail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 <input
                   id="email"
                   name="email"
                   type="email"
                   placeholder="you@example.com"
                   autoComplete="email"
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl border-2 transition-all bg-white dark:bg-slate-700/80 dark:text-white dark:placeholder-slate-400 ${
-                    errors.email
-                      ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200"
-                      : "border-slate-200 dark:border-slate-600 focus:border-accent focus:ring-2 focus:ring-accent/20"
-                  } outline-none`}
-                  value={formData.email}
+                  className={`${inputBase} pl-10 ${errors.email ? inputError : ""}`}
+                  value={form.email}
                   onChange={handleChange}
                   required
-                  aria-invalid={!!errors.email}
                 />
               </div>
-              {errors.email && (
-                <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1">
-                  <span>⚠️</span> {errors.email}
-                </p>
-              )}
-            </div>
+              {errors.email && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="mt-1 text-xs text-red-600">{errors.email}</motion.p>}
+            </motion.div>
 
             {/* Password */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2"
-              ></label>
+            <motion.div variants={fadeUp}>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Password <span className="text-red-500">*</span>
+              </label>
               <div className="relative">
-                <HiLockClosed className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                <HiLockClosed className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 <input
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="At least 6 characters"
                   autoComplete="new-password"
-                  className={`w-full pl-10 pr-12 py-3 rounded-xl border-2 transition-all bg-white dark:bg-slate-700/80 dark:text-white dark:placeholder-slate-400 ${
-                    errors.password
-                      ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200"
-                      : "border-slate-200 dark:border-slate-600 focus:border-accent focus:ring-2 focus:ring-accent/20"
-                  } outline-none`}
-                  value={formData.password}
+                  className={`${inputBase} pl-10 pr-10 ${errors.password ? inputError : ""}`}
+                  value={form.password}
                   onChange={handleChange}
                   required
-                  aria-invalid={!!errors.password}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? (
-                    <HiEyeOff className="w-5 h-5" />
-                  ) : (
-                    <HiEye className="w-5 h-5" />
-                  )}
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                  aria-label={showPassword ? "Hide" : "Show"}>
+                  {showPassword ? <HiEyeOff className="w-4 h-4" /> : <HiEye className="w-4 h-4" />}
                 </button>
               </div>
-              {formData.password && (
-                <div className="mt-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="flex-1 h-2 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full transition-all duration-300 ${getPasswordStrengthColor()}`}
-                        style={{ width: `${(passwordStrength / 5) * 100}%` }}
-                      />
-                    </div>
-                    <span
-                      className={`text-xs font-medium ${passwordStrength <= 2 ? "text-red-600" : passwordStrength <= 3 ? "text-yellow-600" : "text-green-600"}`}
-                    >
-                      {getPasswordStrengthText()}
-                    </span>
+              {/* Strength meter */}
+              {form.password && (
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all duration-300 ${strengthColor}`} style={{ width: `${(pwStrength / 5) * 100}%` }} />
                   </div>
+                  <span className={`text-xs font-medium ${strengthTextColor}`}>{strengthLabel}</span>
                 </div>
               )}
-              {errors.password && (
-                <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1">
-                  <span>⚠️</span> {errors.password}
-                </p>
-              )}
-            </div>
+              {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
+            </motion.div>
 
-            {/* Confirm Password */}
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2"
-              ></label>
+            {/* Confirm password */}
+            <motion.div variants={fadeUp}>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Confirm password <span className="text-red-500">*</span>
+              </label>
               <div className="relative">
-                <HiLockClosed className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                <HiLockClosed className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
+                  type={showConfirm ? "text" : "password"}
                   placeholder="Re-enter your password"
                   autoComplete="new-password"
-                  className={`w-full pl-10 pr-12 py-3 rounded-xl border-2 transition-all bg-white dark:bg-slate-700/80 dark:text-white dark:placeholder-slate-400 ${
-                    errors.confirmPassword
-                      ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200"
-                      : formData.confirmPassword &&
-                          formData.password === formData.confirmPassword
-                        ? "border-green-300 focus:border-green-500 focus:ring-2 focus:ring-green-200"
-                        : "border-slate-200 dark:border-slate-600 focus:border-accent focus:ring-2 focus:ring-accent/20"
-                  } outline-none`}
-                  value={formData.confirmPassword}
+                  className={`${inputBase} pl-10 pr-10 ${errors.confirmPassword ? inputError : pwMatch ? inputOk : ""}`}
+                  value={form.confirmPassword}
                   onChange={handleChange}
                   required
-                  aria-invalid={!!errors.confirmPassword}
                 />
-                {formData.confirmPassword &&
-                  formData.password === formData.confirmPassword && (
-                    <HiCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500 pointer-events-none" />
-                  )}
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors ${
-                    formData.confirmPassword &&
-                    formData.password === formData.confirmPassword
-                      ? "hidden"
-                      : ""
-                  }`}
-                  aria-label={
-                    showConfirmPassword ? "Hide password" : "Show password"
-                  }
-                >
-                  {showConfirmPassword ? (
-                    <HiEyeOff className="w-5 h-5" />
-                  ) : (
-                    <HiEye className="w-5 h-5" />
-                  )}
-                </button>
+                {pwMatch ? (
+                  <HiCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500 pointer-events-none" />
+                ) : (
+                  <button type="button" onClick={() => setShowConfirm(!showConfirm)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                    aria-label={showConfirm ? "Hide" : "Show"}>
+                    {showConfirm ? <HiEyeOff className="w-4 h-4" /> : <HiEye className="w-4 h-4" />}
+                  </button>
+                )}
               </div>
-              {errors.confirmPassword && (
-                <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1">
-                  <span>⚠️</span> {errors.confirmPassword}
-                </p>
-              )}
-            </div>
+              {errors.confirmPassword && <p className="mt-1 text-xs text-red-600">{errors.confirmPassword}</p>}
+            </motion.div>
 
-            {/* Address */}
-            <div>
-              <label
-                htmlFor="address"
-                className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2"
-              ></label>
-              <div className="relative">
-                <HiLocationMarker className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-                <input
-                  id="address"
-                  name="address"
-                  type="text"
-                  placeholder="Your address"
-                  autoComplete="street-address"
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700/80 dark:text-white dark:placeholder-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all bg-white"
-                  value={formData.address}
-                  onChange={handleChange}
-                />
+            {/* Phone + Address row */}
+            <motion.div variants={fadeUp} className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Phone
+                </label>
+                <div className="relative">
+                  <HiPhone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="+92 300 1234567"
+                    autoComplete="tel"
+                    className={`${inputBase} pl-10 ${errors.phone ? inputError : ""}`}
+                    value={form.phone}
+                    onChange={handleChange}
+                  />
+                </div>
+                {errors.phone && <p className="mt-1 text-xs text-red-600">{errors.phone}</p>}
               </div>
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label
-                htmlFor="phone"
-                className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2"
-              ></label>
-              <div className="relative">
-                <HiPhone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  placeholder="+92 300 1234567"
-                  autoComplete="tel"
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl border-2 transition-all bg-white dark:bg-slate-700/80 dark:text-white dark:placeholder-slate-400 ${
-                    errors.phone
-                      ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200"
-                      : "border-slate-200 dark:border-slate-600 focus:border-accent focus:ring-2 focus:ring-accent/20"
-                  } outline-none`}
-                  value={formData.phone}
-                  onChange={handleChange}
-                  aria-invalid={!!errors.phone}
-                />
+              <div>
+                <label htmlFor="address" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Address
+                </label>
+                <div className="relative">
+                  <HiLocationMarker className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                  <input
+                    id="address"
+                    name="address"
+                    type="text"
+                    placeholder="Your address"
+                    autoComplete="street-address"
+                    className={`${inputBase} pl-10`}
+                    value={form.address}
+                    onChange={handleChange}
+                  />
+                </div>
               </div>
-              {errors.phone && (
-                <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1">
-                  <span>⚠️</span> {errors.phone}
-                </p>
-              )}
-            </div>
+            </motion.div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark hover:shadow-glow transition-all duration-300 btn-premium disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
-            >
-              {loading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Creating account…
-                </>
-              ) : (
-                "Create Account"
-              )}
-            </button>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200 dark:border-slate-600"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400">
-                  Already have an account?
-                </span>
-              </div>
-            </div>
-
-            <p className="text-center text-slate-600 dark:text-slate-400 text-sm">
-              {" "}
-              <Link
-                to="/login"
-                className="text-accent font-semibold hover:underline"
+            {/* Submit */}
+            <motion.div variants={fadeUp} className="pt-1">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 bg-cta text-white font-semibold text-sm rounded-lg hover:bg-cta-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Creating account…
+                  </>
+                ) : (
+                  <>
+                    Create Account
+                    <HiArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </motion.div>
+
+            {/* Divider + login link */}
+            <motion.div variants={fadeUp} className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="px-4 bg-white dark:bg-gray-950 text-xs text-slate-400">or</span>
+              </div>
+            </motion.div>
+
+            <motion.p variants={fadeUp} className="text-center text-sm text-slate-500 dark:text-slate-400">
+              Already have an account?{" "}
+              <Link to="/login" className="text-cta font-semibold hover:underline">
                 Sign in here
               </Link>
-            </p>
-          </div>
-        </form>
-        <Link
-          to="/"
-          className="block mt-6 text-center text-white/90 hover:text-white text-sm transition-colors font-medium"
-        >
+            </motion.p>
+          </form>
+        </motion.div>
+
+        <Link to="/" className="mt-8 text-sm text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
           ← Back to home
         </Link>
       </div>

@@ -4,121 +4,86 @@
 
 @layer base {
   * {
-    @apply transition-colors duration-200;
-  }
-  
-  body {
-    @apply antialiased text-slate-900 bg-primary font-sans;
-    font-feature-settings: "kern" 1, "liga" 1;
-  }
-
-  html.dark body {
-    @apply bg-slate-900 text-slate-100;
+    box-sizing: border-box;
   }
 
   html {
     scroll-behavior: smooth;
   }
+
+  body {
+    @apply antialiased text-slate-800 bg-primary font-sans;
+    font-feature-settings: "kern" 1, "liga" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  html.dark body {
+    @apply bg-gray-950 text-slate-100;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+
+  /* Simple underline link style */
+  .link-underline {
+    @apply relative;
   }
 
-  .perspective-1000 {
-    perspective: 1000px;
+  .link-underline::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-px bg-current transition-all duration-200;
   }
 
-  .preserve-3d {
-    transform-style: preserve-3d;
+  .link-underline:hover::after {
+    @apply w-full;
   }
 
-  .backface-hidden {
-    backface-visibility: hidden;
+  /* Left accent border for cards */
+  .card-accent {
+    @apply border-l-4 border-l-cta;
   }
 
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900;
-    background-size: 200% auto;
-    animation: gradient 3s linear infinite;
+  /* Clean input focus */
+  .input-clean {
+    @apply w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-slate-900 dark:focus:border-slate-200 transition-colors duration-150 rounded;
   }
 
-  .glass {
-    @apply bg-white/80 backdrop-blur-xl border border-white/20;
-  }
-
-  .hover-lift {
-    @apply transition-transform duration-300 hover:-translate-y-1;
-  }
-
-  .hover-glow {
-    @apply transition-shadow duration-300 hover:shadow-glow;
+  /* Loading spinner */
+  .spinner {
+    @apply w-8 h-8 border-2 border-slate-200 border-t-slate-900 dark:border-slate-700 dark:border-t-slate-100 rounded-full animate-spin;
   }
 }
 
-/* Scroll reveal animation */
-@keyframes scrollReveal {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.scroll-reveal {
-  animation: scrollReveal 0.8s ease-out forwards;
-  opacity: 0;
-}
-
-/* Smooth page transitions */
-.page-transition {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-/* Premium button hover effect */
-.btn-premium {
-  @apply relative overflow-hidden;
-}
-
-.btn-premium::before {
-  content: '';
-  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent;
-  transform: translateX(-100%);
-  transition: transform 0.6s;
-}
-
-.btn-premium:hover::before {
-  transform: translateX(100%);
-}
-
-/* Loading shimmer */
-.shimmer {
-  background: linear-gradient(
-    90deg,
-    #f0f0f0 0%,
-    #e0e0e0 50%,
-    #f0f0f0 100%
-  );
+/* Dark mode shimmer for skeleton */
+.skeleton {
+  background: linear-gradient(90deg, #f0ede8 0%, #e2ddd8 50%, #f0ede8 100%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: skeleton-pulse 1.4s ease infinite;
 }
 
-html.dark .shimmer {
-  background: linear-gradient(
-    90deg,
-    #1e293b 0%,
-    #334155 50%,
-    #1e293b 100%
-  );
+html.dark .skeleton {
+  background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: skeleton-pulse 1.4s ease infinite;
 }
 
-/* Dark mode glass effect */
-html.dark .glass {
-  @apply bg-slate-800/80 backdrop-blur-xl border border-slate-700/40;
+@keyframes skeleton-pulse {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
